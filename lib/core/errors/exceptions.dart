@@ -9,3 +9,5 @@ class ServerException implements Exception {
 class EmptyCacheException implements Exception {}
 
 class EmailIsNotVerifiedException implements Exception {}
+
+class NoUserException implements Exception {}

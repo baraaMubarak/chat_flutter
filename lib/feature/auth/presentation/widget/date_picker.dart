@@ -1,3 +1,4 @@
+import 'package:chat/core/extensions/num_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 // import 'package:kitopi_app/constants.dart';
@@ -167,9 +168,7 @@ class _AppDatePickerState extends State<AppDatePicker> {
               }
             },
           ),
-          const SizedBox(
-            height: 15,
-          ),
+          10.height(),
 
           // Text
 

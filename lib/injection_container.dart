@@ -9,6 +9,12 @@ import 'package:chat/feature/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:chat/feature/auth/domain/usecases/send_code_usecase.dart';
 import 'package:chat/feature/auth/domain/usecases/verify_code_usecase.dart';
 import 'package:chat/feature/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:chat/feature/chat/data/datat_source/chat_local_data_source.dart';
+import 'package:chat/feature/chat/data/datat_source/chat_remote_data_source.dart';
+import 'package:chat/feature/chat/data/repository/chat_repository_imp.dart';
+import 'package:chat/feature/chat/domain/repository/chat_repository.dart';
+import 'package:chat/feature/chat/domain/usecases/send_message_usecase.dart';
+import 'package:chat/feature/chat/presentaion/bloc/chat/chat_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,6 +48,25 @@ Future<void> init() async {
   // Data Source
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImp());
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImp());
+
+  ///chat
+  //Bloc
+  sl.registerFactory(() => ChatBloc(
+        sendMessageUseCase: sl(),
+      ));
+
+  // use case
+  sl.registerLazySingleton(() => SendMessageUseCase(chatRepository: sl()));
+
+  // Repository
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImp(
+        chatLocalDataSource: sl(),
+        chatRemoteDataSource: sl(),
+      ));
+
+  // Data Source
+  sl.registerLazySingleton<ChatLocalDataSource>(() => ChatLocalDataSourceImp());
+  sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSourceImp());
 
   /// core
 

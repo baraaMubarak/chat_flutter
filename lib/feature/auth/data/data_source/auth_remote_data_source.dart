@@ -1,6 +1,7 @@
 import 'package:chat/core/api/api_controller.dart';
 import 'package:chat/core/api/api_settings.dart';
 import 'package:chat/core/errors/exceptions.dart';
+import 'package:chat/feature/auth/data/data_source/auth_local_data_source.dart';
 import 'package:chat/feature/auth/data/model/user.dart';
 import 'package:chat/feature/auth/domain/entities/User.dart';
 
@@ -18,7 +19,7 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
   ApiController apiController = ApiController();
-
+  AuthLocalDataSource authLocalDataSource = AuthLocalDataSourceImp();
   AuthRemoteDataSourceImp();
 
   @override
@@ -30,7 +31,9 @@ class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
     if (res.isEmpty) {
       throw EmailIsNotVerifiedException();
     }
-    return UserModel.fromJson(res);
+    UserModel user = UserModel.fromJson(res);
+    authLocalDataSource.saveUser(user);
+    return user;
   }
 
   @override
@@ -45,7 +48,9 @@ class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
         'dateOfBirth': user.dateOfBirth,
       },
     );
-    return UserModel.fromJson(res);
+    UserModel newUser = UserModel.fromJson(res);
+    authLocalDataSource.saveUser(newUser);
+    return newUser;
   }
 
   @override
@@ -54,7 +59,10 @@ class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
       Uri.parse(ApiSettings.BASE_URL + ApiSettings.RESET_PASSWORD),
       body: {'password': password},
     );
-    return UserModel.fromJson(res);
+
+    UserModel user = UserModel.fromJson(res);
+    authLocalDataSource.saveUser(user);
+    return user;
   }
 
   @override
@@ -71,6 +79,8 @@ class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
       Uri.parse(ApiSettings.BASE_URL + ApiSettings.VERIFY_CODE),
       body: {'code': code},
     );
-    return UserModel.fromJson(res);
+    UserModel user = UserModel.fromJson(res);
+    authLocalDataSource.saveUser(user);
+    return user;
   }
 }

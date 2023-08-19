@@ -5,10 +5,10 @@ import 'package:chat/core/widget/app_text.dart';
 import 'package:chat/core/widget/app_text_field.dart';
 import 'package:chat/core/widget/loading_dialog.dart';
 import 'package:chat/feature/auth/presentation/bloc/auth/auth_bloc.dart';
-import 'package:chat/feature/auth/presentation/screens/verify_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class SendCodeForm extends StatelessWidget {
   SendCodeForm({super.key});
@@ -38,14 +38,7 @@ class SendCodeForm extends StatelessWidget {
             loading = false;
           }
           context.snackBar(message: 'Send Code Successfully', isError: false);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const VerifyCode(
-                isResetPasswordSteps: true,
-              ),
-            ),
-          );
+          context.goNamed('verify_code', pathParameters: {'isResetPasswordSteps': 'true'});
         }
       },
       child: Padding(

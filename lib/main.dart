@@ -1,11 +1,7 @@
+import 'package:chat/core/router.dart';
 import 'package:chat/core/shared_pref/shared_pref.dart';
 import 'package:chat/feature/auth/presentation/bloc/auth/auth_bloc.dart';
-import 'package:chat/feature/auth/presentation/screens/login.dart';
-import 'package:chat/feature/auth/presentation/screens/register.dart';
-import 'package:chat/feature/auth/presentation/screens/reset_password.dart';
-import 'package:chat/feature/auth/presentation/screens/send_code.dart';
-import 'package:chat/feature/auth/presentation/screens/verify_code.dart';
-import 'package:chat/home_dummy_screen.dart';
+import 'package:chat/feature/chat/presentaion/bloc/chat/chat_bloc.dart';
 import 'package:chat/injection_container.dart' as di;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,23 +19,21 @@ class Main extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) => BlocProvider(
-        create: (context) => di.sl<AuthBloc>(),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          initialRoute: '/login',
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/register': (context) => const Register(),
-            '/verify_code': (context) => const VerifyCode(),
-            '/home': (context) => const HomeDummyScreen(),
-            '/reset_password': (context) => const ResetPassword(),
-            '/send_code': (context) => const SendCode(),
-          },
+    return BlocProvider(
+      create: (context) => di.sl<ChatBloc>(),
+      child: ScreenUtilInit(
+        designSize: const Size(360, 690),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) => BlocProvider(
+          create: (context) => di.sl<AuthBloc>(),
+          child: MaterialApp.router(
+            theme: ThemeData(
+              fontFamily: 'Nunito',
+            ),
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+          ),
         ),
       ),
     );

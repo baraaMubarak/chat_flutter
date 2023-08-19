@@ -2,9 +2,11 @@ import 'package:chat/core/extensions/context_extension.dart';
 import 'package:chat/core/extensions/num_extension.dart';
 import 'package:chat/core/themAndColors/colors.dart';
 import 'package:chat/core/widget/app_text.dart';
+import 'package:chat/feature/chat/presentaion/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../../../core/widget/loading_dialog.dart';
@@ -40,9 +42,14 @@ class VerifyCodeForm extends StatelessWidget {
           }
           context.snackBar(message: 'Verified Code Successful', isError: false);
           if (isResetPasswordSteps) {
-            Navigator.pushNamed(context, '/reset_password');
+            context.goNamed('reset_password');
           } else {
-            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomeScreen(),
+                ),
+                (route) => false);
           }
         }
       },

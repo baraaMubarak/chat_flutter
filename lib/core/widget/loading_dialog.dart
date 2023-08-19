@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoadingDialog extends StatelessWidget {
   static void show(BuildContext context) => showDialog<void>(
@@ -8,7 +9,7 @@ class LoadingDialog extends StatelessWidget {
         builder: (_) => const LoadingDialog(),
       ).then((_) => FocusScope.of(context).requestFocus(FocusNode()));
 
-  static void hide(BuildContext context) => Navigator.pop(context);
+  static void hide(BuildContext context) => context.pop();
 
   const LoadingDialog({super.key});
 

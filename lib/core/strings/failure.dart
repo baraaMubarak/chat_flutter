@@ -4,3 +4,4 @@ const String CACHE_FAILURE_MESSAGE = 'No Cache Data';
 const String INVALID_DATA_FAILURE_MESSAGE = "Invalid registration data. Please ensure all required fields are filled correctly.";
 const String UN_EXPECTED_ERROR = 'Un Expected Error';
 const String EMAIL_IS_NOT_VERIFIED = 'Email is not verified';
+const String NO_USER = 'Please login before doing anything );';

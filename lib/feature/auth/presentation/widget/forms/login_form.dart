@@ -9,12 +9,13 @@ import 'package:chat/feature/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginForm extends StatelessWidget {
   LoginForm({super.key});
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController()..text = 'praa.m.2002@gmail.com';
+  final TextEditingController passwordController = TextEditingController()..text = '12345678';
   bool loading = false;
   final _key = GlobalKey<FormState>();
 
@@ -33,7 +34,7 @@ class LoginForm extends StatelessWidget {
             loading = false;
           }
           if (state.message == EMAIL_IS_NOT_VERIFIED) {
-            Navigator.pushNamed(context, '/verify_code');
+            context.goNamed('verify_code');
           }
           context.snackBar(message: state.message, isError: true);
         } else if (state is SuccessLoginAuthState) {
@@ -41,7 +42,10 @@ class LoginForm extends StatelessWidget {
             LoadingDialog.hide(context);
             loading = false;
           }
-          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          if (context.canPop()) {
+            context.pop();
+          }
+          context.goNamed('home');
           context.snackBar(message: 'Login Successfully', isError: false);
         }
       },
@@ -93,7 +97,7 @@ class LoginForm extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/send_code');
+                      context.goNamed('send_code');
                     },
                     child: const AppText(
                       text: 'Forgot Password?',
@@ -127,7 +131,7 @@ class LoginForm extends StatelessWidget {
               20.height(),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/register');
+                  context.goNamed('register');
                 },
                 child: const AppText(
                   text: 'You Don\'t Have Account? Create Account',

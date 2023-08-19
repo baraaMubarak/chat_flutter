@@ -10,6 +10,8 @@ String mapFailureToString(Failure failure) {
     return CACHE_FAILURE_MESSAGE;
   } else if (failure is EmailIsNotVerifiedFailure) {
     return EMAIL_IS_NOT_VERIFIED;
+  } else if (failure is NoUserFailure) {
+    return NO_USER;
   }
   return UN_EXPECTED_ERROR;
 }

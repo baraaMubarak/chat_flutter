@@ -5,6 +5,7 @@ import 'package:chat/core/widget/app_text.dart';
 import 'package:chat/core/widget/app_text_field.dart';
 import 'package:chat/core/widget/loading_dialog.dart';
 import 'package:chat/feature/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:chat/feature/chat/presentaion/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -37,7 +38,12 @@ class ResetPasswordForm extends StatelessWidget {
             LoadingDialog.hide(context);
             loading = false;
           }
-          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeScreen(),
+              ),
+              (route) => false);
           context.snackBar(message: 'Reset password Successfully', isError: false);
         }
       },
