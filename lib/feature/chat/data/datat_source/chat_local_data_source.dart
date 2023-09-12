@@ -7,6 +7,8 @@ import 'package:chat/feature/chat/domain/entities/message.dart';
 abstract class ChatLocalDataSource {
   void saveMessage(Message message, String userId);
 
+  void saveListOfMessages(List<Message> messages, String userId);
+
   // void saveUsers(List<UserModel> users);
 
   Map<String, List<Message>>? getMessages();
@@ -22,6 +24,7 @@ class ChatLocalDataSourceImp implements ChatLocalDataSource {
   // String USERS_KEY = 'chat_users';
   SharedPrefController sharedPrefController = SharedPrefController();
 
+  @override
   Map<String, List<Message>>? getMessages() {
     String? stringMessages = sharedPrefController.get(key: MESSAGES_KEY);
     if (stringMessages == null) return null;
@@ -55,15 +58,81 @@ class ChatLocalDataSourceImp implements ChatLocalDataSource {
 
   @override
   void saveMessage(Message message, String userId) {
-    List<Message> messages = getMessagesByUserId(userId: userId);
-    messages.add(message);
-    Map<String, dynamic> messagesMap = {
-      userId: messages.map((msg) => MessageModel.fromMessage(msg).toJson()).toList(),
-    };
+    var allMessages = getMessages();
+    if (allMessages != null) {
+      if (allMessages[userId] != null) {
+        allMessages[userId]!.add(message);
+      } else {
+        allMessages[userId] = [message];
+      }
+    } else {
+      allMessages = {
+        userId: [message]
+      };
+    }
+    // Logger().w(sortChatKeysByLastMessageDate(allMessages));
+    // Logger().w(allMessages);
+    saveChat(allMessages);
+  }
+
+  Map<String, List<Message>> sortChatKeysByLastMessageDate(Map<String, List<Message>> chat) {
+    List<String> sortedKeys = chat.keys.toList();
+
+    sortedKeys.sort((a, b) {
+      DateTime aLastMessageDate = chat[a]!.isEmpty
+          ? DateTime.now()
+          : DateTime.parse(
+              chat[a]!.last.updatedAt ?? chat[a]!.last.createdAt.toString(),
+            );
+
+      DateTime bLastMessageDate = chat[b]!.isEmpty
+          ? DateTime.now()
+          : DateTime.parse(
+              chat[b]!.last.updatedAt ?? chat[b]!.last.createdAt.toString(),
+            );
+
+      return bLastMessageDate.compareTo(aLastMessageDate);
+    });
+
+    Map<String, List<Message>> sortedChat = {};
+    for (String key in sortedKeys) {
+      sortedChat[key] = chat[key]!;
+    }
+
+    return sortedChat;
+  }
+
+  saveChat(Map<String, List<Message>> chat) {
+    Map<String, List> messagesMap = {};
+
+    chat.forEach((key, value) {
+      List<Map<String, dynamic>> messageList = value.map((msg) => MessageModel.fromMessage(msg).toJson()).toList();
+      messagesMap[key] = messageList;
+    });
     sharedPrefController.save(
       key: MESSAGES_KEY,
       value: jsonEncode(messagesMap),
     );
+    return messagesMap;
+  }
+
+  @override
+  void saveListOfMessages(List<Message> messages, String userId) {
+    var allMessages = getMessages();
+    for (int i = 0; i < messages.length; i++) {
+      if (allMessages == null) {
+        allMessages = {
+          userId: [messages[i]],
+        };
+      } else {
+        if (allMessages[userId] == null) {
+          allMessages[userId] = [messages[i]];
+        } else {
+          allMessages[userId]!.add(messages[i]);
+        }
+      }
+    }
+    saveChat(allMessages!);
   }
 
   @override

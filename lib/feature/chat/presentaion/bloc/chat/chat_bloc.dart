@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat/core/errors/map_failure_to_string.dart';
 import 'package:chat/feature/chat/domain/entities/message.dart';
+import 'package:chat/feature/chat/domain/usecases/get_previus_messages_usecase.dart';
 import 'package:chat/feature/chat/domain/usecases/send_message_usecase.dart';
 import 'package:meta/meta.dart';
 
@@ -9,12 +10,14 @@ part 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   SendMessageUseCase sendMessageUseCase;
+  GetPreviousMessagesUseCase getPreviousMessagesUseCase;
 
   // late io.Socket socket;
   // final AuthLocalDataSource _authLocalDataSource = di.sl<AuthLocalDataSource>();
 
   ChatBloc({
     required this.sendMessageUseCase,
+    required this.getPreviousMessagesUseCase,
   }) : super(ChatInitialState()) {
     on<ChatEvent>((event, emit) async {
       if (event is ChatSendMessageEvent) {
@@ -45,6 +48,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       } else if (event is ChatReceivedMessageEvent) {
         emit(ChatLoadingState());
         emit(ChatReceivedMessageState(successMessage: ''));
+      } else if (event is GetPreviousMessageEvent) {
+        emit(ChatLoadingState());
+        final failureOrUnit = await getPreviousMessagesUseCase(userId: event.userId);
+        failureOrUnit.fold(
+          (failure) => emit(ChatErrorState(error: mapFailureToString(failure))),
+          (unit) => emit(ChatReceivedMessageState(successMessage: '')),
+        );
       }
     });
   }

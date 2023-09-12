@@ -14,3 +14,9 @@ class ChatReceivedMessageEvent extends ChatEvent {
 
   ChatReceivedMessageEvent({this.message});
 }
+
+class GetPreviousMessageEvent extends ChatEvent {
+  final String userId;
+
+  GetPreviousMessageEvent({required this.userId});
+}

@@ -13,6 +13,7 @@ import 'package:chat/feature/chat/data/datat_source/chat_local_data_source.dart'
 import 'package:chat/feature/chat/data/datat_source/chat_remote_data_source.dart';
 import 'package:chat/feature/chat/data/repository/chat_repository_imp.dart';
 import 'package:chat/feature/chat/domain/repository/chat_repository.dart';
+import 'package:chat/feature/chat/domain/usecases/get_previus_messages_usecase.dart';
 import 'package:chat/feature/chat/domain/usecases/send_message_usecase.dart';
 import 'package:chat/feature/chat/presentaion/bloc/chat/chat_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -53,10 +54,12 @@ Future<void> init() async {
   //Bloc
   sl.registerFactory(() => ChatBloc(
         sendMessageUseCase: sl(),
+        getPreviousMessagesUseCase: sl(),
       ));
 
   // use case
   sl.registerLazySingleton(() => SendMessageUseCase(chatRepository: sl()));
+  sl.registerLazySingleton(() => GetPreviousMessagesUseCase(chatRepository: sl()));
 
   // Repository
   sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImp(

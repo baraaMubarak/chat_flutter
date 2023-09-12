@@ -7,6 +7,7 @@ import 'package:chat/feature/auth/domain/entities/User.dart';
 abstract class AuthLocalDataSource {
   Future<void> saveToken(String token);
   Future<void> saveUser(UserModel user);
+  Future<void> addSubscriber(UserModel user);
 
   String? getToken();
   User? getUser();
@@ -41,5 +42,12 @@ class AuthLocalDataSourceImp implements AuthLocalDataSource {
   @override
   Future<void> saveUser(UserModel user) async {
     await sharedPrefController.save(key: USER, value: jsonEncode(user.toJson()));
+  }
+
+  @override
+  Future<void> addSubscriber(UserModel user) async {
+    User currentUser = getUser()!;
+    currentUser.subscribers!.add(user);
+    saveUser(UserModel(currentUser));
   }
 }

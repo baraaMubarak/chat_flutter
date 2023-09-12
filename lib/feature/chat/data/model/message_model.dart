@@ -7,8 +7,9 @@ class MessageModel extends Message {
     String? senderId,
     String? message,
     MessageStatus? status,
-    String? createdAt,
+    DateTime? createdAt,
     String? updatedAt,
+    String? timestamp,
   }) : super(
           token: token,
           senderId: senderId,
@@ -17,6 +18,7 @@ class MessageModel extends Message {
           status: status,
           createdAt: createdAt,
           updatedAt: updatedAt,
+          timestamp: timestamp,
         );
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
@@ -26,8 +28,9 @@ class MessageModel extends Message {
       receiverId: json['receiverId'],
       message: json['message'],
       status: _parseMessageStatus(json['status']),
-      createdAt: json['createdAt'],
+      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toString()),
       updatedAt: json['updatedAt'],
+      timestamp: json['timestamp'],
     );
   }
   factory MessageModel.fromMessage(Message message) {
@@ -39,6 +42,7 @@ class MessageModel extends Message {
       status: message.status,
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
+      timestamp: message.timestamp,
     );
   }
 
@@ -49,8 +53,9 @@ class MessageModel extends Message {
       'receiverId': receiverId,
       'message': message,
       'status': status?.toString().split('.').last,
-      'createdAt': createdAt,
+      'createdAt': createdAt.toString(),
       'updatedAt': updatedAt,
+      'timestamp': timestamp,
     };
   }
 

@@ -33,9 +33,11 @@ class ChatRepositoryImp implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, List<Message>>> getPreviousMessages(String userId) {
-    // TODO: implement getPreviousMessages
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> getPreviousMessages(String userId) async {
+    return await _validateExceptions(() async {
+      await chatRemoteDataSource.getPreviousMessagesBySocket(userId: userId);
+      return Future.value(const Right(unit));
+    });
   }
 
   Future<Either<Failure, Unit>> _validateExceptions(Future<Either<Failure, Unit>> Function() callback) async {
@@ -47,10 +49,6 @@ class ChatRepositoryImp implements ChatRepository {
       return Left(ServerFailure(message: e.message));
     } on EmailIsNotVerifiedException {
       return Left(EmailIsNotVerifiedFailure());
-    } on NoUserException {
-      return Left(NoUserFailure());
-    } catch (e) {
-      return Left(UnexpectedFailure(error: e));
     }
   }
 }

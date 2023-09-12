@@ -2,15 +2,17 @@ enum MessageStatus { sent, received, seen }
 
 class Message {
   String? token;
+  String? timestamp;
   String? senderId;
   String? receiverId;
   String? message;
   MessageStatus? status;
-  String? createdAt;
+  DateTime? createdAt;
   String? updatedAt;
 
   Message({
     this.token,
+    this.timestamp,
     this.senderId,
     this.receiverId,
     this.message,

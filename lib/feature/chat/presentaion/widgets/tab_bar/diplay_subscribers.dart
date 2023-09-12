@@ -12,7 +12,6 @@ import 'package:chat/injection_container.dart' as di;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 class DisplaySubscribers extends StatefulWidget {
   final void Function()? searchOnNewUserOnPress;
@@ -127,6 +126,7 @@ class _DisplaySubscribersState extends State<DisplaySubscribers> {
           Expanded(
             child: BlocBuilder<ChatBloc, ChatState>(
               builder: (context, state) {
+                searchSubscribers = sort(users: searchSubscribers);
                 return ListView.builder(
                   itemCount: searchSubscribers.length,
                   itemBuilder: (context, index) {
@@ -142,6 +142,9 @@ class _DisplaySubscribersState extends State<DisplaySubscribers> {
                       lastMessage: lastMessage,
                       isMyMessage: isMyMessage,
                       onTap: () {
+                        BlocProvider.of<ChatBloc>(context).add(GetPreviousMessageEvent(
+                          userId: searchSubscribers[index]!.sid!,
+                        ));
                         BlocProvider.of<SelectedUserBloc>(context).add(ChangeSelectedUserEvent(
                           user: searchSubscribers[index]!,
                         ));
@@ -157,19 +160,36 @@ class _DisplaySubscribersState extends State<DisplaySubscribers> {
     );
   }
 
-  String formatDateTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
+  List<User> sort({required List<User?> users}) {
+    List<User> sortedUsers = List.from(users.where((user) => user != null).cast<User>());
 
-    final isToday = difference.inDays == 0;
-    final isYesterday = difference.inDays == 1;
+    sortedUsers.sort((userA, userB) {
+      final String userIdA = userA.sid ?? '';
+      final String userIdB = userB.sid ?? '';
 
-    if (isToday || isYesterday) {
-      final formattedTime = DateFormat.jm().format(dateTime); // Apply 12-hour format
-      return isToday ? formattedTime : 'Yesterday $formattedTime';
-    } else {
-      final formattedDateTime = DateFormat('h:mm a, d/M').format(dateTime); // Apply 12-hour format
-      return formattedDateTime;
-    }
+      final List<Message> messagesA = _chatLocalDataSource.getMessagesByUserId(userId: userIdA);
+      final List<Message> messagesB = _chatLocalDataSource.getMessagesByUserId(userId: userIdB);
+
+      String lastMessageCreatedAtA = '';
+      if (messagesA.isNotEmpty) {
+        if (messagesA.isNotEmpty && messagesA.last.createdAt != null) {
+          lastMessageCreatedAtA = messagesA.last.createdAt!.toLocal().toString();
+        }
+      } else if (messagesA.isEmpty) {
+        lastMessageCreatedAtA = '';
+      }
+      String lastMessageCreatedAtB = '';
+      if (messagesB.isNotEmpty) {
+        if (messagesB.last.createdAt != null) {
+          lastMessageCreatedAtB = messagesB.isNotEmpty ? messagesB.last.createdAt!.toLocal().toString() : '';
+        }
+      } else if (messagesB.isEmpty) {
+        lastMessageCreatedAtB = '';
+      }
+
+      return lastMessageCreatedAtB.compareTo(lastMessageCreatedAtA);
+    });
+
+    return sortedUsers;
   }
 }

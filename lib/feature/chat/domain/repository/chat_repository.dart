@@ -3,7 +3,7 @@ import 'package:chat/feature/chat/domain/entities/message.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class ChatRepository {
-  Future<Either<Failure, List<Message>>> getPreviousMessages(String userId);
+  Future<Either<Failure, Unit>> getPreviousMessages(String userId);
 
   Future<Either<Failure, List<Message>>> getNotReceivedMessages(String userId);
 

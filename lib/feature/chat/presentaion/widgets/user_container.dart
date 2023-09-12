@@ -54,7 +54,7 @@ class UserContainer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 AppText(
-                  text: lastMessage != null ? formatDateTime(DateTime.parse(lastMessage!.createdAt ?? DateTime.now().toString())) : '',
+                  text: lastMessage != null ? formatDateTime(DateTime.parse(lastMessage!.createdAt.toString()).toLocal()) : '',
                   fontSize: 12.sp,
                   textColor: isSelected ? Colors.white : null,
                 ),

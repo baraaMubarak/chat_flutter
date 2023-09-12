@@ -50,6 +50,8 @@ class SocketController {
         'receiverId': message.receiverId,
         'token': _authLocalDataSource.getToken(),
         'message': message.message,
+        'createdAt': message.createdAt.toString(),
+        'timestamp': message.timestamp,
       },
       ack: (data) {
         if (data != null) {
@@ -60,6 +62,50 @@ class SocketController {
         }
       },
     );
+  }
+
+  getPreviousMessages({
+    required String userId,
+    required void Function(dynamic data) ack,
+  }) async {
+    final completer = Completer<dynamic>();
+
+    if (_authLocalDataSource.getToken() == null) {
+      throw NoUserException();
+    }
+    var lastDate;
+    if (chatLocalDataSource.getMessagesByUserId(userId: userId).isNotEmpty) {
+      lastDate = chatLocalDataSource.getMessagesByUserId(userId: userId).last.createdAt ?? DateTime.now();
+    } else {
+      lastDate = DateTime.now();
+    }
+
+    socket.emitWithAck(
+      'previous_messages',
+      {
+        'receiverId': userId,
+        'token': _authLocalDataSource.getToken(),
+        'lastMessageOn': lastDate.toString(),
+      },
+      ack: (data) {
+        if (data['data'] != null && data != []) {
+          // Logger().i('ACK for getPreviousMessages : $data');
+          ack(data['data']);
+          completer.complete(data);
+        } else {
+          completer.completeError('Null ACK');
+          Logger().w('Null ACK');
+          ack(null);
+        }
+      },
+    );
+    try {
+      final response = await completer.future;
+      return response;
+    } catch (error) {
+      // Handle errors here
+      // throw Exception();
+    }
   }
 
   search({
@@ -74,7 +120,6 @@ class SocketController {
     socket.emitWithAck(
       'search',
       {
-        'socketId': socket.id,
         'searchKey': searchKey,
       },
       ack: (data) {
@@ -97,17 +142,6 @@ class SocketController {
     }
   }
 
-  // Stream<Message> listenForMessages(Function(dynamic data) callBack) async* {
-  //   Logger().d('data');
-  //   if (_authLocalDataSource.getUser() == null) {
-  //     throw NoUserException();
-  //   }
-  //   socket.on(_authLocalDataSource.getUser()!.sid!, (data) {
-  //     Logger().d(data);
-  //     return callBack(data);
-  //   });
-  // }
-
   _listeners() {
     socket.onConnect((data) => Logger().i('The socket was successfully connected, ${socket.id}'));
     socket.onDisconnect((data) => Logger().w('Disconnected! $data'));
@@ -118,7 +152,17 @@ class SocketController {
           Message(
             message: data['message'],
             senderId: data['senderId'],
-            createdAt: data['createdAt'],
+            createdAt: DateTime.parse(data['createdAt']),
+          ),
+          data['senderId']);
+      BlocProvider.of<ChatBloc>(context).add(ChatReceivedMessageEvent());
+    });
+    socket.on(_authLocalDataSource.getUser()!.sid!, (data) {
+      chatLocalDataSource.saveMessage(
+          Message(
+            message: data['message'],
+            senderId: data['senderId'],
+            createdAt: DateTime.parse(data['createdAt']),
           ),
           data['senderId']);
       BlocProvider.of<ChatBloc>(context).add(ChatReceivedMessageEvent());
